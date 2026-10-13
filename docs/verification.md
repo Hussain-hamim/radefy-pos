@@ -36,9 +36,23 @@ Release candidate 0.1.0. This records observed results, not an assertion that ev
 |---|---|---|---|
 | macOS Apple Silicon | Universal executable contains arm64 | Launch/demo checkout, restart/persistence, receipt history and native print-dialog checks passed | Core workflow smoke verified; physical peripherals and disconnected installation still outstanding |
 | macOS Intel | Universal executable contains x86_64 | No Intel machine available | Built, not natively verified |
-| Windows x64 | NSIS + offline WebView2 configuration and native-runner CI workflow supplied | No Windows host available | **Installer not built here; platform not verified** |
+| Windows x64 | NSIS setup EXE built on GitHub's Windows runner; embedded WebView2 offline installer verified in the archive | Silent install succeeded and installed app created a native window | Build/install/startup smoke passed; full native workflows, disconnected installation and physical peripherals remain outstanding |
 
-A Windows Actions run is being prepared; its result will be recorded below. No signing/notarization credentials were supplied. The DMG is unsigned by a trusted developer identity and is not notarized. Platform builds must not be described as signed releases.
+No signing/notarization credentials were supplied. The Windows EXE is unsigned; the macOS DMG is unsigned by a trusted developer identity and is not notarized. Platform builds must not be described as signed releases.
+
+## Windows build evidence
+
+[GitHub Actions run 38450669137](https://github.com/Hussain-hamim/radefy-pos/actions/runs/38450669137) completed successfully on 13 October 2026 UTC, building source commit `92b2574b62ec75ed3ce2e19e8431d0dbc060057f` in the private repository. Subsequent documentation-only commits do not change the packaged application.
+
+- All **20 Rust integration scenarios** and **6 frontend tests** passed on the Windows runner.
+- Tauri produced `Radefy POS_0.1.0_x64-setup.exe` (approximately **210.67 MiB**).
+- The workflow required `offlineInstaller` configuration and inspected the resulting NSIS archive. It contains `MicrosoftEdgeWebView2RuntimeInstaller.exe` (**214,090,448 bytes**) alongside the app executable.
+- Silent installation returned exit code 0. The installed `radefy-pos.exe` remained running and created a native window.
+- The [installer artifact](https://github.com/Hussain-hamim/radefy-pos/actions/runs/38450669137/artifacts/11841681878) includes the EXE, SHA-256 checksum, source/build manifest, payload listing and smoke-test evidence. It expires on 12 November 2026; keep a downloaded copy.
+
+The small verification files are also preserved in [`builds/windows-0.1.0/`](builds/windows-0.1.0/). Setup EXE SHA-256: `020f0c17090ca0b2fa63b2e8756c1cd262130b7db736fe14e0538c42142692d1` (calculated on the Windows runner). The local full-package transfer was stopped because it was unusually slow; the complete package remains available in the GitHub artifact. Its local byte-for-byte download verification was not completed.
+
+This hosted-runner check does not establish that WebView2 was absent before installation, does not disable networking and does not exercise the Windows checkout UI or attached hardware. Those acceptance gaps remain explicit below.
 
 ## UI evidence
 
@@ -48,7 +62,7 @@ During development, console checks exposed an empty label-image source and initi
 
 ## Remaining release gates
 
-- Run the Windows workflow on a Windows x64 host, install its produced NSIS package, and run all native acceptance scenarios.
+- Run all Windows native application acceptance scenarios beyond the successful CI installation/window-startup smoke test.
 - Smoke-test the universal app on real Intel hardware.
 - Test installation and restart with networking disabled; verify bundled WebView2 on a Windows machine without an existing runtime.
 - Test an actual keyboard barcode scanner and 58/80 mm printer drivers on each target OS, including Dari glyph output, paper dimensions and repeated reprints.

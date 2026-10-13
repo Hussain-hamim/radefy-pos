@@ -1,0 +1,91 @@
+
+7-Zip 26.03 (x64) : Copyright (c) 1999-2026 Igor Pavlov : 2026-09-03
+
+Scanning the drive for archives:
+1 file, 220898791 bytes (211 MiB)
+
+Listing archive: D:\a\radefy-pos\radefy-pos\src-tauri\target\x86_64-pc-windows-msvc\release\bundle\nsis\Radefy POS_0.1.0_x64-setup.exe
+
+--
+Path = D:\a\radefy-pos\radefy-pos\src-tauri\target\x86_64-pc-windows-msvc\release\bundle\nsis\Radefy POS_0.1.0_x64-setup.exe
+Type = Nsis
+Physical Size = 220898791
+Method = LZMA:23
+Solid = +
+Headers Size = 72580
+Embedded Stub Size = 52736
+SubType = NSIS-3 Unicode
+
+----------
+Path = $PLUGINSDIR\System.dll
+Size = 12288
+Packed Size = 220846051
+Modified = 
+Attributes = 
+Method = LZMA:23
+Solid = +
+Offset = 0
+
+Path = $PLUGINSDIR\modern-wizard.bmp
+Size = 26494
+Packed Size = 
+Modified = 2026-10-13 19:09:46.0000000
+Attributes = 
+Method = LZMA:23
+Solid = +
+Offset = 12292
+
+Path = $PLUGINSDIR\nsDialogs.dll
+Size = 9728
+Packed Size = 
+Modified = 
+Attributes = 
+Method = LZMA:23
+Solid = +
+Offset = 38790
+
+Path = $PLUGINSDIR\nsis_tauri_utils.dll
+Size = 34304
+Packed Size = 
+Modified = 
+Attributes = 
+Method = LZMA:23
+Solid = +
+Offset = 48522
+
+Path = $PLUGINSDIR\StartMenu.dll
+Size = 13316
+Packed Size = 
+Modified = 
+Attributes = 
+Method = LZMA:23
+Solid = +
+Offset = 82830
+
+Path = $TEMP\MicrosoftEdgeWebView2RuntimeInstaller.exe
+Size = 214090448
+Packed Size = 
+Modified = 2026-10-13 19:09:58.0000000
+Attributes = 
+Method = LZMA:23
+Solid = +
+Offset = 96150
+
+Path = radefy-pos.exe
+Size = 12885504
+Packed Size = 
+Modified = 2026-10-13 19:09:46.0000000
+Attributes = 
+Method = LZMA:23
+Solid = +
+Offset = 214186602
+
+Path = uninstall.exe
+Size = 
+Packed Size = 
+Modified = 
+Attributes = 
+Method = LZMA:23
+Solid = +
+Offset = 227072110
+

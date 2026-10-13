@@ -4,6 +4,8 @@ A local supermarket point of sale and management application. React 19 + TypeScr
 
 **Release status:** working implementation under local acceptance testing, version 0.1.0. See [verification](docs/verification.md) for actual platform and device evidence. An installer build alone does not verify a platform. Packages produced here are **unsigned and not notarized**.
 
+**Windows installer:** [download the setup artifact](https://github.com/Hussain-hamim/radefy-pos/actions/runs/38450669137/artifacts/11841681878) from the successful private GitHub Actions run. It contains the x64 setup EXE with the WebView2 offline installer bundled; Windows automated tests, silent installation and native window startup passed. See the [Windows installation guide](docs/windows-installation.md).
+
 ## Run
 
 Requirements for development: Node.js 22+, Rust stable, and the platform's [Tauri prerequisites](https://v2.tauri.app/start/prerequisites/). On macOS install Xcode Command Line Tools. On Windows install Visual Studio C++ Build Tools and WebView2 for development. Initial dependency installation and compilation use the internet; the installed desktop application does not.

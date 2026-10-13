@@ -1,0 +1,11 @@
+{
+  "run_url": "https://github.com/Hussain-hamim/radefy-pos/actions/runs/38450669137",
+  "webview2": "embedded offline installer, verified in NSIS archive",
+  "version": "0.1.0",
+  "source_commit": "92b2574b62ec75ed3ce2e19e8431d0dbc060057f",
+  "platform": "windows-x64",
+  "filename": "Radefy POS_0.1.0_x64-setup.exe",
+  "bytes": 220898791,
+  "sha256": "020f0c17090ca0b2fa63b2e8756c1cd262130b7db736fe14e0538c42142692d1",
+  "signed": false
+}

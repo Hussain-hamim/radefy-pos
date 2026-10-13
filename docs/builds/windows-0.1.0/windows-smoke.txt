@@ -1,0 +1,3 @@
+Silent installation: passed
+Native process/window launch: passed
+Real scanner, receipt printer and clean-machine offline WebView2 installation: not tested on this runner.

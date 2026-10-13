@@ -4,6 +4,10 @@
 
 The source repository is private: [Hussain-hamim/radefy-pos](https://github.com/Hussain-hamim/radefy-pos). Sign into an account with access to download its build artifacts.
 
+**Built and tested:** the [successful Windows run](https://github.com/Hussain-hamim/radefy-pos/actions/runs/38450669137) provides a [ready-to-download installer artifact](https://github.com/Hussain-hamim/radefy-pos/actions/runs/38450669137/artifacts/11841681878). Extract the ZIP and use `Radefy POS_0.1.0_x64-setup.exe` (approximately 210.67 MiB). This artifact expires on 12 November 2026. See [verification](verification.md#windows-build-evidence) for the completed checks and remaining hardware/offline acceptance work.
+
+To produce a new build:
+
 1. Open **Actions → Build offline desktop installers**.
 2. Choose **Run workflow**, branch `main`, platform `windows`.
 3. Wait for **Windows x64 offline setup** to finish successfully.
