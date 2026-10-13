@@ -64,6 +64,7 @@ The Windows configuration embeds the WebView2 offline installer. Build tools may
 
 ## Documentation
 
+- [Windows setup and GitHub Actions](docs/windows-installation.md)
 - [Owner and cashier guide](docs/user-guide.md)
 - [Backup and recovery](docs/backup-recovery.md)
 - [Architecture and data rules](docs/architecture.md)
