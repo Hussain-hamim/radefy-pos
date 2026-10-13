@@ -1,0 +1,11 @@
+{
+  "identifier": "main",
+  "description": "Local app and user-selected backup dialogs",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "core:webview:allow-print",
+    "dialog:allow-open",
+    "dialog:allow-save"
+  ]
+}

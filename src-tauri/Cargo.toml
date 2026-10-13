@@ -1,0 +1,56 @@
+[package]
+name = "radefy-pos"
+version = "0.1.0"
+description = "Offline supermarket management"
+authors = ["Radefy"]
+edition = "2021"
+default-run = "radefy-pos"
+
+[lib]
+name = "radefy_core"
+crate-type = ["lib"]
+
+[[bin]]
+name = "radefy-pos"
+path = "src/main.rs"
+required-features = ["desktop"]
+
+[[bin]]
+name = "radefy-preview"
+path = "src/bin/preview.rs"
+required-features = ["preview"]
+
+[features]
+default = ["desktop"]
+preview = []
+desktop = ["dep:tauri", "dep:tauri-plugin-dialog", "dep:tauri-plugin-single-instance", "dep:tauri-build"]
+
+[build-dependencies]
+tauri-build = { version = "2", optional = true , features = [] }
+
+[dependencies]
+rusqlite = { version = "0.37", features = ["bundled", "backup", "functions"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+uuid = { version = "1", features = ["v4"] }
+chrono = { version = "0.4", features = ["serde"] }
+argon2 = "0.5"
+rand_core = { version = "0.6", features = ["getrandom"] }
+tiny_http = "0.12"
+fs2 = "0.4"
+csv = "1"
+base64 = "0.22"
+sha2 = "0.10"
+tauri = { version = "2", optional = true , features = [] }
+tauri-plugin-dialog = { version = "2", optional = true }
+tauri-plugin-single-instance = { version = "2", optional = true }
+
+[dev-dependencies]
+tempfile = "3"
+
+[profile.dev]
+debug = 0
+incremental = false
+
+[profile.release]
+strip = true

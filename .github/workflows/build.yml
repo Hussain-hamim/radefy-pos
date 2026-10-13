@@ -1,0 +1,126 @@
+name: Build offline desktop installers
+
+on:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: Platform to package
+        required: true
+        default: windows
+        type: choice
+        options: [windows, macos, all]
+  push:
+    tags: ['v*']
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    if: github.event_name != 'workflow_dispatch' || inputs.platform != 'macos'
+    name: Windows x64 offline setup
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install Rust stable
+        run: |
+          rustup toolchain install stable --profile minimal
+          rustup default stable
+      - run: npm ci
+      - run: npm test
+      - name: Test SQLite workflows on Windows
+        run: cargo test --locked --manifest-path src-tauri/Cargo.toml --no-default-features
+      - name: Require bundled offline WebView2
+        run: node -e "const c=require('./src-tauri/tauri.conf.json');if(c.bundle.windows.webviewInstallMode.type!=='offlineInstaller')process.exit(1)"
+      - name: Build NSIS setup EXE
+        run: npx tauri build --target x86_64-pc-windows-msvc --bundles nsis
+      - name: Verify embedded WebView2 and write checksums
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          New-Item -ItemType Directory -Force artifacts | Out-Null
+          $setup = Get-ChildItem 'src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis/*-setup.exe' | Select-Object -First 1
+          if (!$setup) { throw 'NSIS installer was not generated.' }
+          $listing = & "${env:ProgramFiles}\7-Zip\7z.exe" l -slt $setup.FullName
+          if ($LASTEXITCODE -ne 0) { throw 'Could not inspect the NSIS payload.' }
+          $listing | Set-Content artifacts/installer-contents.txt
+          if (!(($listing -join "`n") -match '(?i)webview2.*\.exe')) {
+            throw 'No embedded WebView2 installer was found in the setup payload.'
+          }
+          Copy-Item $setup.FullName artifacts/
+          $hash = Get-FileHash $setup.FullName -Algorithm SHA256
+          "$($hash.Hash.ToLower())  $($setup.Name)" | Set-Content artifacts/SHA256SUMS
+          @{
+            version = (Get-Content package.json | ConvertFrom-Json).version
+            source_commit = '${{ github.sha }}'
+            run_url = '${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
+            platform = 'windows-x64'
+            webview2 = 'embedded offline installer, verified in NSIS archive'
+            filename = $setup.Name
+            bytes = $setup.Length
+            sha256 = $hash.Hash.ToLower()
+            signed = $false
+          } | ConvertTo-Json | Set-Content artifacts/build-manifest.json
+          "### Windows offline installer`n`n$($setup.Name) — $([math]::Round($setup.Length / 1MB, 1)) MiB`n`nWebView2 payload verified. Unsigned build.`n`nSHA-256: $($hash.Hash.ToLower())" >> $env:GITHUB_STEP_SUMMARY
+      - name: Smoke-test silent installation and native launch
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $setup = Get-ChildItem 'artifacts/*-setup.exe' | Select-Object -First 1
+          $install = Start-Process -FilePath $setup.FullName -ArgumentList '/S' -PassThru -Wait
+          if ($install.ExitCode -ne 0) { throw "Installer exited with $($install.ExitCode)." }
+          $exe = Join-Path $env:LOCALAPPDATA 'Radefy POS/radefy-pos.exe'
+          if (!(Test-Path $exe)) { throw "Installed executable not found: $exe" }
+          $app = Start-Process -FilePath $exe -PassThru
+          try {
+            Start-Sleep -Seconds 8
+            $app.Refresh()
+            if ($app.HasExited) { throw "Application exited during launch: $($app.ExitCode)" }
+            if ($app.MainWindowHandle -eq 0) { throw 'Application did not create a native window.' }
+            "Silent installation: passed`nNative process/window launch: passed`nReal scanner, receipt printer and clean-machine offline WebView2 installation: not tested on this runner." | Set-Content artifacts/windows-smoke.txt
+          } finally {
+            if (!$app.HasExited) { Stop-Process -Id $app.Id -Force }
+          }
+      - name: Upload Windows installer and verification evidence
+        if: success()
+        uses: actions/upload-artifact@v7
+        with:
+          name: radefy-windows-x64-offline-setup
+          path: artifacts/*
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 30
+
+  macos:
+    if: github.event_name != 'workflow_dispatch' || inputs.platform != 'windows'
+    name: macOS universal disk image
+    runs-on: macos-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install Rust targets
+        run: |
+          rustup toolchain install stable --profile minimal
+          rustup default stable
+          rustup target add aarch64-apple-darwin x86_64-apple-darwin
+      - run: npm ci
+      - run: npm test
+      - run: cargo test --locked --manifest-path src-tauri/Cargo.toml --no-default-features
+      - run: scripts/package-macos.sh
+      - uses: actions/upload-artifact@v7
+        with:
+          name: radefy-macos-universal-unsigned
+          path: artifacts/*
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 30
