@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { version } from "../../package.json";
 import {
   Plus,
   ShieldCheck,
@@ -726,7 +727,7 @@ export function Settings({ onRestored }: { onRestored: () => void }) {
             </p>
           </section>
           <div className="version-note">
-            Radefy POS <Badge>v0.1.0</Badge>
+            Radefy POS <Badge>v{version}</Badge>
             <span>{t("Works offline")} · AFN · Asia/Kabul</span>
           </div>
         </div>

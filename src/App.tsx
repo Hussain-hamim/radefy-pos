@@ -41,6 +41,7 @@ import { Store } from "./lib/context";
 import { Dashboard } from "./pages/Dashboard";
 import { Catalog, Inventory } from "./pages/Catalog";
 import { POS } from "./pages/POS";
+import { version } from "../package.json";
 import { Parties, Purchases, Sales, Finance } from "./pages/Business";
 import { Reports, Staff, Settings } from "./pages/Admin";
 import { today } from "./lib/money";
@@ -476,7 +477,7 @@ export function App() {
               <ShieldCheck size={15} />
             </div>
             <p>{t("Your data. Your device. Always.")}</p>
-            <small>Radefy POS · v0.1.1</small>
+            <small>Radefy POS · v{version}</small>
           </div>
         </aside>
         <div className="main-shell">
