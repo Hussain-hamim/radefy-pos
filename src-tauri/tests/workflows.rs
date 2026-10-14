@@ -736,3 +736,48 @@ fn upgrades_version_one_with_a_recovery_backup() {
         .to_string_lossy()
         .contains("pre-migration")));
 }
+
+#[test]
+fn opening_inventory_can_be_sold_to_walk_in_then_new_customer() {
+    let (_dir, mut s) = store();
+    let p = product(&mut s, "Opening rice", "12500", "kg", "10050");
+    assert_eq!(stock(&s, &p), 12500);
+    assert_eq!(scalar(s.c().unwrap(), "SELECT sum(quantity) FROM inventory_movements WHERE product_id=?1 AND reason='opening'", &[&p]).unwrap(), 12500);
+    let walk_in = sale(&mut s, &p, "1250", "12563", "");
+    assert!(walk_in["sale"]["customer_id"].is_null());
+    assert_eq!(walk_in["sale"]["total"], "12563");
+    assert_eq!(walk_in["sale"]["debt"], "0");
+    assert_eq!(stock(&s, &p), 11250);
+    assert_eq!(
+        scalar(s.c().unwrap(), "SELECT count(*) FROM customers", &[]).unwrap(),
+        0
+    );
+    let customer = write(
+        &mut s,
+        "customer_save",
+        json!({"name":"New POS customer","phone":"0791234567","credit_limit":"0","opening_balance":"0"}),
+    );
+    let named = sale(
+        &mut s,
+        &p,
+        "1000",
+        "10050",
+        customer["id"].as_str().unwrap(),
+    );
+    assert_eq!(named["sale"]["customer"], "New POS customer");
+    assert_eq!(named["sale"]["debt"], "0");
+    assert_eq!(stock(&s, &p), 10250);
+    assert_eq!(
+        scalar(s.c().unwrap(), "SELECT count(*) FROM customer_ledger", &[]).unwrap(),
+        0
+    );
+    assert_eq!(
+        scalar(
+            s.c().unwrap(),
+            "SELECT sum(amount) FROM cash_movements WHERE kind='sale'",
+            &[]
+        )
+        .unwrap(),
+        22613
+    );
+}

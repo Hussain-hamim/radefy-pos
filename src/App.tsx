@@ -476,7 +476,7 @@ export function App() {
               <ShieldCheck size={15} />
             </div>
             <p>{t("Your data. Your device. Always.")}</p>
-            <small>Radefy POS · v0.1.0</small>
+            <small>Radefy POS · v0.1.1</small>
           </div>
         </aside>
         <div className="main-shell">

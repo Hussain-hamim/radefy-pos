@@ -44,7 +44,6 @@ export function productForm(ctx: StoreContext, product?: Row): FormSpec {
     fields: [
       { key: "name", label: "Product name", required: true },
       { key: "name_dari", label: "Dari name" },
-      { key: "image", label: "Product image", type: "image", full: true },
       { key: "sku", label: "SKU", required: true },
       {
         key: "barcode",
@@ -71,6 +70,16 @@ export function productForm(ctx: StoreContext, product?: Row): FormSpec {
       },
       { key: "price", label: "Selling price", type: "money", required: true },
       { key: "cost", label: "Purchase cost", type: "money", required: true },
+      ...(!product
+        ? [
+            {
+              key: "opening_stock",
+              label: "Opening stock",
+              type: "quantity",
+              hint: "Quantity already on hand, in the selected base unit. Use 0 for a new item.",
+            } as Field,
+          ]
+        : []),
       { key: "min_stock", label: "Minimum stock", type: "quantity" },
       { key: "tax_bps", label: "Tax rate (%)", type: "money" },
       {
@@ -95,11 +104,11 @@ export function productForm(ctx: StoreContext, product?: Row): FormSpec {
       { key: "pack_size", label: "Pieces per pack", type: "quantity" },
       ...(!product
         ? ([
-            { key: "opening_stock", label: "Opening stock", type: "quantity" },
             { key: "batch", label: "Batch" },
             { key: "expires", label: "Expiry date", type: "date" },
           ] as Field[])
         : []),
+      { key: "image", label: "Product image", type: "image", full: true },
     ],
     initial: product
       ? {
@@ -117,6 +126,7 @@ export function productForm(ctx: StoreContext, product?: Row): FormSpec {
       : {
           sku: "RD-" + Date.now().toString().slice(-7),
           min_stock: "5",
+          opening_stock: "0",
           tax_bps: "0",
           price: "",
           cost: "",
@@ -552,7 +562,8 @@ export function Catalog() {
   );
 }
 export function Inventory() {
-  const { data: d, page, t, run } = useStore();
+  const ctx = useStore();
+  const { data: d, page, t, run, can } = ctx;
   const [form, setForm] = useState<FormSpec | null>(null);
   const [filter, setFilter] = useState("all");
   const today = new Date().toISOString().slice(0, 10);
@@ -571,7 +582,14 @@ export function Inventory() {
             ? "A clear record of every item in and out."
             : "Know what is available, what is running low, and what expires next."
         }
-      />
+      >
+        {page !== "movements" && can("catalog") && (
+          <button className="button" onClick={() => setForm(productForm(ctx))}>
+            <Plus size={16} />
+            {t("Add product")}
+          </button>
+        )}
+      </PageHeader>
       {page === "movements" ? (
         <DataTable
           rows={d.movements}

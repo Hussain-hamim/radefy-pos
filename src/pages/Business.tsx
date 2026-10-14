@@ -25,12 +25,13 @@ import { command } from "../lib/api";
 import type { Row, Receipt } from "../lib/types";
 import { ReceiptView } from "./POS";
 import { options } from "./Catalog";
+import { partyForm } from "../lib/party-form";
 const paymentOptions = [
   { value: "cash", label: "Cash" },
   { value: "other", label: "Other" },
 ];
 export function Parties() {
-  const { data: d, page, t, run, notify } = useStore();
+  const { data: d, page, t, run, notify, can } = useStore();
   const [form, setForm] = useState<FormSpec | null>(null);
   const [statement, setStatement] = useState<Row | null>(null);
   const customer = page !== "suppliers";
@@ -39,50 +40,7 @@ export function Parties() {
     (r) => !debt || BigInt(r.balance ?? "0") > 0n,
   );
   const edit = (r?: Row) =>
-    setForm({
-      title: customer
-        ? r
-          ? "Edit customer"
-          : "Add customer"
-        : r
-          ? "Edit supplier"
-          : "Add supplier",
-      fields: [
-        { key: "name", label: "Name", required: true },
-        { key: "phone", label: "Phone" },
-        { key: "address", label: "Address", full: true },
-        { key: "notes", label: "Notes", type: "textarea", full: true },
-        ...(customer
-          ? ([
-              { key: "credit_limit", label: "Credit limit", type: "money" },
-            ] as Field[])
-          : []),
-        ...(!r
-          ? ([
-              {
-                key: "opening_balance",
-                label: "Opening balance",
-                type: "money",
-              },
-            ] as Field[])
-          : []),
-      ],
-      initial: r
-        ? {
-            name: r.name ?? "",
-            phone: r.phone ?? "",
-            address: r.address ?? "",
-            notes: r.notes ?? "",
-            credit_limit: decimal(r.credit_limit),
-          }
-        : { credit_limit: "0", opening_balance: "0" },
-      onSubmit: async (v) => {
-        await run(customer ? "customer_save" : "supplier_save", {
-          ...v,
-          id: r?.id ?? "",
-        });
-      },
-    });
+    setForm(partyForm({ run, can }, customer ? "customer" : "supplier", r));
   const pay = (r: Row) =>
     setForm({
       title: "Record payment",

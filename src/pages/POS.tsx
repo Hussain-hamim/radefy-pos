@@ -18,6 +18,7 @@ import { command, AppError } from "../lib/api";
 import { money, qty, parseFixed, decimal, dateLabel } from "../lib/money";
 import type { CartItem, Quote, Receipt, Row } from "../lib/types";
 import { ProductIcon } from "../components/ProductIcon";
+import { CustomerPicker } from "../components/CustomerPicker";
 import { Modal, Empty, Badge } from "../components/ui";
 export function ReceiptView({
   receipt,
@@ -58,6 +59,8 @@ export function ReceiptView({
           )}
           <br />
           {t("Cashier")}: {receipt.sale.cashier}
+          <br />
+          {t("Customer")}: {receipt.sale.customer || t("Walk-in customer")}
         </p>
         <div className="receipt-rule" />
         {receipt.items.map((i) => (
@@ -133,7 +136,9 @@ export function POS() {
   const [category, setCategory] = useState("");
   const [discount, setDiscount] = useState(decimal(recovery?.discount ?? "0"));
   const [customer, setCustomer] = useState(recovery?.customer_id ?? "");
-  const [cash, setCash] = useState(recovery ? decimal(recovery.cash) : "");
+  const [cash, setCash] = useState<string | null>(
+    recovery ? decimal(recovery.cash) : null,
+  );
   const [other, setOther] = useState(decimal(recovery?.other ?? "0"));
   const [pending, setPending] = useState<PendingSale | null>(recovery);
   const [quote, setQuote] = useState<Quote | null>(null);
@@ -241,7 +246,7 @@ export function POS() {
     setPending(null);
     localStorage.removeItem("radefy-pending-" + data.mode);
     setItems([]);
-    setCash("");
+    setCash(null);
     setDiscount("0");
     setOther("0");
     setCustomer("");
@@ -259,7 +264,7 @@ export function POS() {
         items,
         discount: discountMinor ?? "0",
         customer_id: customer,
-        cash: parseFixed(cash || "0"),
+        cash: parseFixed(cashValue || "0"),
         other: parseFixed(other || "0"),
         held_id: heldId,
       };
@@ -293,10 +298,14 @@ export function POS() {
     }
   }
 
-  const cashMinor = decimalOrNull(cash);
   const otherMinor = decimalOrNull(other);
-  const paid = BigInt(cashMinor ?? "0") + BigInt(otherMinor ?? "0");
   const total = BigInt(quote?.total ?? "0");
+  const remaining = total - BigInt(otherMinor ?? "0");
+  // Until the cashier edits it, cash follows the quoted balance, including split payments.
+  const cashValue =
+    cash ?? decimal((remaining > 0n ? remaining : 0n).toString());
+  const cashMinor = decimalOrNull(cashValue);
+  const paid = BigInt(cashMinor ?? "0") + BigInt(otherMinor ?? "0");
   const changeDue = paid > total ? paid - total : 0n;
   const products = data.products.filter(
     (p) =>
@@ -438,21 +447,11 @@ export function POS() {
             </button>
           </div>
           <div className="cart-customer">
-            <label>
-              {t("Customer")}
-              <select
-                value={customer}
-                onChange={(e) => setCustomer(e.target.value)}
-                disabled={busy || uncertain}
-              >
-                <option value="">{t("Walk-in customer")}</option>
-                {data.customers.map((c) => (
-                  <option key={c.id} value={c.id ?? ""}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <CustomerPicker
+              value={customer}
+              onChange={setCustomer}
+              disabled={busy || uncertain}
+            />
           </div>
           <div className="cart-items">
             {items.length ? (
@@ -568,9 +567,8 @@ export function POS() {
                 <input
                   inputMode="decimal"
                   disabled={busy || uncertain}
-                  value={cash}
+                  value={cashValue}
                   onChange={(e) => setCash(e.target.value)}
-                  placeholder={quote ? decimal(quote.total) : "0.00"}
                 />
               </label>
               <label>
@@ -583,6 +581,13 @@ export function POS() {
                 />
               </label>
             </div>
+            <button
+              className="text-button exact-cash"
+              disabled={busy || uncertain || !quote}
+              onClick={() => setCash(null)}
+            >
+              {t("Use exact cash")}
+            </button>
             <div>
               <span>
                 {t(paid < total && customer ? "Outstanding" : "Change")}
@@ -600,6 +605,11 @@ export function POS() {
             {!register && (
               <p className="notice-inline">
                 {t("Open the cash register before accepting cash.")}
+              </p>
+            )}
+            {!customer && quote && paid < total && (
+              <p className="notice-inline" role="status">
+                {t("Walk-in sales must be paid in full.")}
               </p>
             )}
             {error && (
@@ -687,6 +697,8 @@ export function POS() {
                         setItems(cart.items);
                         setDiscount(decimal(cart.discount));
                         setCustomer(cart.customer_id || "");
+                        setCash(null);
+                        setOther("0");
                         setHeldId(h.id ?? "");
                         setHeld(false);
                       } catch {

@@ -10,7 +10,7 @@ Choose English or دری in Settings. Dari mirrors the layout while phone number
 
 1. Create categories, then add products with a unique SKU, selling price, purchase cost and base unit. Pieces must be whole numbers. Kilograms/liters/meters permit up to three decimals.
 2. Add barcode aliases. A carton barcode's multiplier is its quantity in base units: 12 pieces means 12, not a price multiplier. A 5 kg bag of a kilogram product means 5.
-3. Enter opening stock, cost, batch and expiry when registering the product. Expiry-tracked products require a date. Later stock enters through received purchases or reasoned inventory counts.
+3. Choose **Add product** in Products or Inventory. Enter **Opening stock** beside the price/cost fields for quantity already on hand in the selected base unit (for example 12.5 kg). Leave 0 when none exists. Enter a batch/expiry if applicable; expiry-tracked products require a date. Later stock enters through received purchases or reasoned inventory counts.
 4. Add suppliers/customers and any opening debt. Set customer credit limits.
 5. In **Cash register**, open the register with the physical opening cash balance. All cash sales, refunds, payments and expenses use that session.
 
@@ -18,7 +18,9 @@ Choose English or دری in Settings. Dari mirrors the layout while phone number
 
 Focus **Barcode**, scan and send Enter. A keyboard-style scanner should use an Enter suffix. Repeating a registered barcode adds its unit/carton quantity. SKU and generated Code 128 labels work in the same input; the internal QR identifier works with a 2D keyboard scanner. An unknown identifier produces an error; authorized users can go to product registration.
 
-Search or select a product to add it manually. Enter a measured weight directly in the quantity field and move focus to apply it. Select a customer for credit sales. Enter an allowed sale discount, cash received, and any non-cash amount. The backend calculates the final total, change, credit balance and actual available stock.
+Search or select a product to add it manually. Enter a measured weight directly in the quantity field and move focus to apply it. New sales select **Walk-in customer** automatically; a saved account is not needed for a fully paid sale. **Cash received** defaults to the exact quoted balance after any non-cash payment. Edit it to the amount actually received for change, or choose **Use exact cash** to reset it. A manually entered value stays unchanged when the cart changes. The backend calculates the final total, change, credit balance and actual available stock.
+
+Click the customer control to search by name or phone. **Walk-in customer** remains available in that dialog even when a search has no matches. Choose **Add customer** to register a missing customer without leaving POS; the search text prefills the name or phone. Saving selects the new customer and preserves the cart. Customer creation requires the customer permission. For a credit sale, select a registered customer and explicitly enter the amount paid (0 if none); credit limits still apply. Walk-in sales require full payment. Completing or clearing a sale resets the next customer to Walk-in.
 
 Choose **Complete sale**. A saved receipt is the confirmation of a posted sale. If the response is interrupted, the app retains the request ID and recovers or retries that same sale. Do not create another transaction to compensate for an uncertain response; reopen the app and check the recovered receipt or Sales history first.
 

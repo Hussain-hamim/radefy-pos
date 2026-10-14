@@ -85,6 +85,15 @@ export const fa: Record<string, string> = {
   Paid: "پرداخت شده",
   Credit: "قرض",
   "Walk-in customer": "مشتری گذری",
+  "Select customer": "انتخاب مشتری",
+  "Search customers by name or phone": "جستجوی مشتری با نام یا شماره تماس",
+  "No customer account needed": "به حساب مشتری نیاز نیست",
+  "No matching customers": "مشتری مطابق جستجو یافت نشد",
+  "Use exact cash": "پرداخت نقدی مبلغ دقیق",
+  "Walk-in sales must be paid in full.":
+    "مبلغ فروش به مشتری گذری باید کامل پرداخت شود.",
+  "Quantity already on hand, in the selected base unit. Use 0 for a new item.":
+    "مقدار موجود را به واحد اصلی انتخاب‌شده وارد کنید. برای کالای بدون موجودی، صفر وارد کنید.",
   "Current sale": "فروش جاری",
   "Clear cart": "خالی کردن سبد",
   "Hold sale": "نگهداری فروش",
