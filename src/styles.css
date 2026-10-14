@@ -2023,8 +2023,12 @@ tbody tr:last-child td {
   margin-bottom: 8px;
 }
 .customer-results {
-  max-height: 280px;
+  max-height: clamp(80px, calc(90dvh - 350px), 280px);
   overflow-y: auto;
+}
+.customer-picker-body + .modal-footer {
+  position: sticky;
+  bottom: 0;
 }
 .customer-no-results {
   padding: 20px 12px;
